@@ -15,7 +15,7 @@ const connectionString =
   process.env.DATABASE_URL ||
   `postgresql://${process.env.PGUSER || 'postgres'}:${process.env.PGPASSWORD || 'postgres'}@${process.env.PGHOST || 'localhost'}:${process.env.PGPORT || '5432'}/${process.env.PGDATABASE || 'loan_ms_db'}?schema=public`;
 
-const pool = new Pool({ connectionString });
+const pool = new Pool({ connectionString, max: 2, idleTimeoutMillis: 5000 });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 

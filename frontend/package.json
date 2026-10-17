@@ -11,7 +11,13 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:push": "prisma db push",
     "prisma:generate": "prisma generate",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "podman:build": "podman build -t loan-ms-app:latest -f Containerfile .",
+    "podman:up": "podman compose -f podman-compose.yml up --build -d",
+    "podman:down": "podman compose -f podman-compose.yml down",
+    "podman:logs": "podman compose -f podman-compose.yml logs -f",
+    "podman:kube:play": "podman play kube podman-pod.yaml",
+    "podman:kube:down": "podman play kube --down podman-pod.yaml"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

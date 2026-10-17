@@ -1,0 +1,89 @@
+# ==============================================================================
+# FinTech Enterprise Loan Management System (LMS) — Podman Pod Specification
+#
+# Podman Native Kubernetes YAML:
+#   Run stack:     podman play kube podman-pod.yaml
+#   Stop stack:    podman play kube --down podman-pod.yaml
+# ==============================================================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: loan-ms-pod
+  labels:
+    app.kubernetes.io/name: loan-management-system
+    app.kubernetes.io/component: fullstack
+spec:
+  containers:
+    - name: postgres
+      image: docker.io/library/postgres:16-alpine
+      env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "postgres"
+        - name: POSTGRES_DB
+          value: "loan_ms_db"
+      ports:
+        - name: postgres-port
+          containerPort: 5432
+          hostPort: 5432
+      volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      readinessProbe:
+        exec:
+          command:
+            - "pg_isready"
+            - "-U"
+            - "postgres"
+            - "-d"
+            - "loan_ms_db"
+        initialDelaySeconds: 4
+        periodSeconds: 4
+
+    - name: web
+      image: localhost/loan-ms-app:latest
+      env:
+        # In a Podman pod, all containers share the network namespace (127.0.0.1)
+        - name: DATABASE_URL
+          value: "postgresql://postgres:postgres@127.0.0.1:5432/loan_ms_db?schema=public"
+        - name: PGHOST
+          value: "127.0.0.1"
+        - name: PGPORT
+          value: "5432"
+        - name: PGUSER
+          value: "postgres"
+        - name: PGPASSWORD
+          value: "postgres"
+        - name: PGDATABASE
+          value: "loan_ms_db"
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        - name: NEXT_PUBLIC_APP_URL
+          value: "http://localhost:3000"
+        - name: AUTH_SECRET
+          value: "fintech-lms-podman-jwt-secret-2026-production-key"
+        - name: FORCE_SEED
+          value: "false"
+      ports:
+        - name: web-http
+          containerPort: 3000
+          hostPort: 3000
+
+  volumes:
+    - name: postgres-storage
+      persistentVolumeClaim:
+        claimName: loan-ms-postgres-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loan-ms-postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

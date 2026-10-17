@@ -1,0 +1,65 @@
+# ==============================================================================
+# Enterprise Loan Management System (LMS) — Podman Compose Specification
+#
+# Usage:
+#   podman compose -f podman-compose.yml up --build -d
+#   podman compose -f podman-compose.yml down
+#   podman compose -f podman-compose.yml logs -f
+# ==============================================================================
+
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: loan_ms_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: loan_ms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_podman_data:/var/lib/postgresql/data:Z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d loan_ms_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - loan_ms_podman_net
+
+  web:
+    build:
+      context: .
+      dockerfile: Containerfile
+    container_name: loan_ms_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/loan_ms_db?schema=public
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: loan_ms_db
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      AUTH_SECRET: fintech-lms-podman-jwt-secret-2026-production-key
+      FORCE_SEED: "false"
+    ports:
+      - "3000:3000"
+    networks:
+      - loan_ms_podman_net
+
+volumes:
+  postgres_podman_data:
+    name: loan_ms_postgres_podman_data
+
+networks:
+  loan_ms_podman_net:
+    name: loan_ms_podman_network
+    driver: bridge

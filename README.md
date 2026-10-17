@@ -1,4 +1,4 @@
-# Enterprise Loan Management System (LMS)
+﻿# Enterprise Loan Management System (LMS)
 
 A modern full-stack Digital Lending and Loan Servicing Platform built with Next.js, TypeScript, Tailwind CSS, and Prisma ORM.
 
@@ -16,24 +16,65 @@ A modern full-stack Digital Lending and Loan Servicing Platform built with Next.
 10. **Repayments, Delinquency & Recovery**: Automated waterfall payment allocation, SMA-0/1/2 DPD bucketing, restructuring, and legal recovery.
 11. **Closure & Digital NOC**: Exact foreclosure quote computation, lien release, and QR-verifiable digital NOC certificate.
 
-## Quick Start (Docker Deployment)
+---
 
-Launch the entire stack (PostgreSQL + Next.js with automated schema setup & default admin):
+## 🚀 Quick Start (Podman Deployment — Rootless & Daemonless)
+
+First-class support for **Podman** on Windows (WSL2), Linux, and macOS:
+
+### Windows Automation Launchers:
+- **Command Prompt**:
+  `cmd
+  podman-run.bat
+  `
+- **PowerShell**:
+  `powershell
+  .\podman-run.ps1
+  `
+*(Supports: start, kube-start, stop, estart, logs, status, seed, eset)*
+
+### Linux / macOS Automation Launcher:
+`ash
+chmod +x podman-run.sh
+./podman-run.sh
+`
+
+### Direct CLI Options:
+`ash
+# Option 1: Podman Compose
+podman compose -f podman-compose.yml up --build -d
+
+# Option 2: Native Podman Pod (Kubernetes YAML)
+podman build -t localhost/loan-ms-app:latest -f frontend/Containerfile frontend
+podman play kube podman-pod.yaml
+`
+
+For complete rootless configuration, SELinux guidelines, and architecture details, see [PODMAN.md](PODMAN.md).
+
+---
+
+## 🐳 Quick Start (Docker Deployment)
+
+Launch the entire stack with Docker Desktop or Docker Engine:
 
 ### Windows (1-Click Launcher):
-```cmd
+`cmd
 run.bat
-```
-*(Supports: `run.bat start`, `run.bat stop`, `run.bat restart`, `run.bat logs`, `run.bat seed`, `run.bat reset`)*
+`
+*(Supports: un.bat start, un.bat stop, un.bat restart, un.bat logs, un.bat seed, un.bat reset)*
 
 ### Linux / macOS:
-```bash
+`ash
 docker compose up --build -d
-```
+`
+
+---
+
+## 🔑 Default Access Credentials
 
 - **Web Application Portal**: [http://localhost:3000](http://localhost:3000)
-- **PostgreSQL Database**: `localhost:5432` (db: `loan_ms_db`, user: `postgres`)
-- **Default Master Admin**: `admin@fintechlms.in` / `LmsAdmin@2026`
+- **Health Check**: [http://localhost:3000/api/health](http://localhost:3000/api/health)
+- **PostgreSQL Database**: localhost:5432 (db: loan_ms_db, user: postgres)
+- **Default Master Admin**: dmin@fintechlms.in / LmsAdmin@2026
 
-For detailed setup, container management, and troubleshooting, see [DOCKER.md](file:///g:/Coding/VS%20code/Loan%20ms/DOCKER.md) and [DEPLOYMENT.md](file:///g:/Coding/VS%20code/Loan%20ms/DEPLOYMENT.md).
-
+For detailed setup, container management, and troubleshooting, see [PODMAN.md](PODMAN.md), [DOCKER.md](DOCKER.md), and [DEPLOYMENT.md](DEPLOYMENT.md).
